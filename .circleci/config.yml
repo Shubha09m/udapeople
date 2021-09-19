@@ -43,7 +43,7 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
-            sudo npm install -g npm@7.24.0
+            sudo npm i
             sudo npm run build
       - save_cache:
           paths: [frontend/node_modules]
@@ -60,7 +60,7 @@ jobs:
           name: Back-end build
           command: |
              cd backend
-             npm install -g npm@7.24.0
+             npm i
              npm run build
       - save_cache:
           paths: [backend/node_modules]
@@ -78,7 +78,7 @@ jobs:
           name: fronted test
           command: |
             cd frontend
-            npm run test
+            sudo npm run test
       
                 
   test-backend:
@@ -92,7 +92,7 @@ jobs:
           name: backend test
           command: |
             cd backend
-            npm run test
+            sudo npm run test
       
             
   # scan-frontend:

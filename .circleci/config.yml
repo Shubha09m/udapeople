@@ -78,7 +78,6 @@ jobs:
           name: fronted test
           command: |
             cd frontend
-            sudo npm install -g jest 
             sudo npm run test
       
                 

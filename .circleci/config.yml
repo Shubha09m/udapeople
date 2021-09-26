@@ -174,15 +174,9 @@ jobs:
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-<<<<<<< HEAD
-              --filters "Name=tag:project,Values=UDAPEOPLE" \
-              --output text >> .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
-=======
               --filters "Name=tag:project,Values=udapeople" \
               --output text >> .circleci/ansible/inventory.txt
               cat .circleci/ansible/inventory.txt
->>>>>>> parent of 5c7478f... new changes
       - run: yum -y install tar gzip
       - persist_to_workspace:
           root: .circleci/ansible

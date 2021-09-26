@@ -280,7 +280,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       - checkout
       - attach_workspace:
@@ -307,7 +307,7 @@ jobs:
             ls -la
             cat .env
             npm run build
-      - aws-cli/setup
+      
       - run:
           name: Deploy frontend objects
           command: |

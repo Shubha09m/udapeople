@@ -242,11 +242,11 @@ jobs:
             TYPEORM_MIGRATIONS_DIR=./src/migrations
             TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
             TYPEORM_MIGRATIONS=./src/migrations/*.ts
-            TYPEORM_HOST=project.cfjpg1dufleb.us-east-1.rds.amazonaws.com
+            TYPEORM_HOST=udapeople-prod.clw7p7ymlbu0.us-east-1.rds.amazonaws.com
             TYPEORM_PORT=5432
             TYPEORM_USERNAME=postgres
             TYPEORM_PASSWORD=postgres
-            TYPEORM_DATABASE=project
+            TYPEORM_DATABASE=udapeople-prod
             EOF
       - run:
           name: Install dependencies

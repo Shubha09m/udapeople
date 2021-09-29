@@ -307,7 +307,7 @@ jobs:
             ls -la
             cat .env
             npm run build
-      
+      - aws-cli/setup
       - run:
           name: Deploy frontend objects
           command: |
@@ -323,7 +323,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["9a:02:61:b5:1b:ea:b5:aa:02:78:9e:e5:80:f3:7c:1a"]
+          fingerprints: ['49:6f:62:63:5e:90:bf:61:d0:00:18:af:57:bb:61:77:ae:06:f0:a9']
       - attach_workspace:
           at: ~/
       - run:

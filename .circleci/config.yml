@@ -326,32 +326,25 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ['49:6f:62:63:5e:90:bf:61:d0:00:18:af:57:bb:61:77:ae:06:f0:a9']
+      - restore_cache:
+          keys: [backend-build]
       - attach_workspace:
-          at: ~/
+          at: /tmp/artifacts
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible openssh-client tar gzip 
-      - restore_cache:
-          keys: ["backend-dist"]  # -<< pipeline.id >>
+            apk update
+            apk add --update ansible aws-cli openssh-client tar
       - run:
           name: compress backend
           command: |
             tar -C /tmp/artifacts/backend -czvf artifact.tar.gz .
       - run:
-          name: Deploy backend 2
+          name: Deploy backend
           command: |
+            cd .circleci/ansible
             export ANSIBLE_HOST_KEY_CHECKING=False
-            ansible-playbook \
-              -i .circleci/ansible/inventory.txt \
-              .circleci/ansible/deploy-backend.yml
-      - run:
-          name: Install AWS CLI for rollback
-          when: on_fail
-          command: |
-            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
-      - revert-migrations:
-          workflow_id: "${CIRCLE_WORKFLOW_ID}" 
+            ansible-playbook -i /tmp/artifacts/inventory.txt deploy-backend.yml
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID}" 
 

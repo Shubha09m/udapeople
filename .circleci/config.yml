@@ -335,10 +335,9 @@ jobs:
       - restore_cache:
           keys: ["backend-dist"]  # -<< pipeline.id >>
       - run:
-          name: Deploy backend
+          name: compress backend
           command: |
-            cd /home
-            tar czf backend.tar.gz -P /home/circleci/project/backend/dist
+            tar -C /tmp/artifacts/backend -czvf artifact.tar.gz .
       - run:
           name: Deploy backend 2
           command: |

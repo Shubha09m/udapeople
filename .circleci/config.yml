@@ -333,8 +333,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk update
-            apk add --update ansible aws-cli openssh-client tar
+            apk add --update ansible openssh-client tar gzip 
       - run:
           name: compress backend
           command: |

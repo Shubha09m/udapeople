@@ -415,14 +415,14 @@ jobs:
             curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" \
               --request PUT --data "${OldWorkflowID}" \
                 https://api.memstash.io/values/oldworkflowid
-            # promote
+            # promote 
             aws cloudformation update-stack \
               --use-previous-template \
               --stack-name cloudfront-${OldWorkflowID} \
               --parameters ParameterKey=WorkflowID,ParameterValue=$CIRCLE_WORKFLOW_ID,UsePreviousValue=false 
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID}" 
+          workflow_id: "${CIRCLE_WORKFLOW_ID}"  
 
   cleanup:
       docker:

@@ -1,0 +1,5 @@
+GitHubUrl:https://github.com/Shubha09m/udapeople
+S3Url:https://udapeople-3e940bc7-5629-4dc7-b186-84bde2d95839.s3.us-east-1.amazonaws.com/
+cloudfrontUrl:https://d294tcyvm0j9bg.cloudfront.net/
+EC2Url:ec2-3-82-151-27.compute-1.amazonaws.com
+prometheusServer:http://ec2-3-94-206-143.compute-1.amazonaws.com:9090/graph

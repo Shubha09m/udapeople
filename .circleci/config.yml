@@ -419,5 +419,4 @@ workflows:
                 - master
       - deploy-cloudfront-and-cleanup:
           requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      

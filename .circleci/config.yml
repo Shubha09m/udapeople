@@ -349,41 +349,34 @@ jobs:
 
   smoke-test:
     docker:
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
-          name: Smoke test backend
+          name: Install dependencies
           command: |
-            export BACKEND_IP=$(aws ec2 --region us-east-1 describe-instances \
-                  --filters Name=instance-state-name,Values=running Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} \
-                  --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                  --output text)
-            echo "Backend IP: ${BACKEND_IP}"      
-            EC2_URL="http://${BACKEND_IP}:3030/api/status"
-            echo ${EC2_URL}
-            curl ${EC2_URL}
-            if curl -s ${EC2_URL} | grep "ok"
-            then
-              exit 0
-            else
-              exit 1
-            fi            
+            sudo apt update
+            sudo apt install -y awscli
+            sudo apt install -y python3 ansible
       - run:
-          name: Smoke test frontend
+          name: Get backend url
           command: |
-            pwd
-            APP_URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employee"
-            if curl -s ${APP_URL} | grep "Welcome"
-            then
-              exit 0
-            else
-              exit 1
-            fi
-      - revert-migrations:
-          workflow_id: "${CIRCLE_WORKFLOW_ID}" 
+            curl -H "token: ${CIRCLE_WORKFLOW_ID}" \
+              --request GET https://api.memstash.io/values/backendurl \
+              > backend-url.txt
+      - run:
+          name: Backend smoke test.
+          command: |
+            url=$(cat backend-url.txt)
+            url="http://${url}:3030/api/status"
+            curl $url
+      - run:
+          name: Frontend smoke test.
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
+            curl -s "${URL}"
       - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID}"  
+          workflow_id: "${CIRCLE_WORKFLOW_ID}"
 
   cloudfront-update:
     docker:

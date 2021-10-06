@@ -349,32 +349,45 @@ jobs:
 
   smoke-test:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            sudo apt update
-            sudo apt install -y awscli
-            sudo apt install -y python3 ansible
+            apk add --update curl
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
-            curl -H "token: ${CIRCLE_WORKFLOW_ID}" \
-              --request GET https://api.memstash.io/values/backendurl \
-              > backend-url.txt
+            export BACKEND_URL=$(sed -n 2p .circleci/ansible/inventory.txt)
       - run:
           name: Backend smoke test.
           command: |
-            url=$(cat backend-url.txt)
-            url="http://${url}:3030/api/status"
-            curl $url
+            echo $BACKEND_URL
+            if curl -s https://${BACKEND_URL}:3030/api/status
+            then
+            return 1
+            else
+            return 0
+            fi
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
-            curl -s "${URL}"
+            URL="http://udapeople-<< pipeline.parameters.workflow-id >>.s3-website-eu-west-3.amazonaws.com"
+            echo $URL
+            if curl -s ${URL} | grep "Welcome"
+            then
+            return 1
+            else
+            return 0
+            fi
+      - run:
+          name: Install AWS CLI for rollback
+          when: on_fail
+          command: |
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID}"
 

@@ -349,21 +349,12 @@ jobs:
 
   smoke-test:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: amazon/aws-cli
     steps:
       - checkout
+      - write-envvars-file 
       - run:
-          name: Install dependencies
-          command: |
-            apk add --update curl
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Get backend url
-          command: |
-            export BACKEND_URL=$(sed -n 2p .circleci/ansible/inventory.txt)
-      - run:
-          name: Backend smoke test.
+          name: Smoke test backend
           command: |
             export BACKEND_IP=$(aws ec2 --region us-east-1 describe-instances \
                   --filters Name=instance-state-name,Values=running Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} \
@@ -378,23 +369,18 @@ jobs:
               exit 0
             else
               exit 1
-            fi
+            fi            
       - run:
-          name: Frontend smoke test.
+          name: Smoke test frontend
           command: |
-            URL="http://udapeople-"${CIRCLE_WORKFLOW_ID}".s3-website-eu-west-3.amazonaws.com"
-            echo $URL
-            if curl -s ${URL} | grep "Welcome"
+            pwd
+            APP_URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employee"
+            if curl -s ${APP_URL} | grep "Welcome"
             then
-            return 1
+              exit 0
             else
-            return 0
+              exit 1
             fi
-      - run:
-          name: Install AWS CLI for rollback
-          when: on_fail
-          command: |
-            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - revert-migrations:
           workflow_id: "${CIRCLE_WORKFLOW_ID}" 
       - destroy-environment:

@@ -282,7 +282,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - attach_workspace:
@@ -290,26 +290,30 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            cd frontend
-            sudo npm install webpack-dev-server -g
-            sudo npm install
+            apk add --no-cache nodejs
+            apk add --no-cache npm
+            apk add --no-cache bash
+            pip install awscli
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(sed -n 2p .circleci/ansible/inventory.txt)
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo ENVIRONMENT=production > "frontend/.env"
             echo NODE_ENV=production >> "frontend/.env"
             echo API_URL=$API_URL >> "frontend/.env"
             echo $API_URL
       - run:
-          name: Build frontend
+          name: "Baking backend API_URL into the frontend"
           command: |
+            npm install webpack-dev-server -g
             cd frontend
-            ls -la
-            cat .env
+            npm i
             npm run build
-      - aws-cli/setup
+            npm audit fix --audit-level=critical --force
       - run:
           name: Deploy frontend objects
           command: |

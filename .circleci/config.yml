@@ -356,12 +356,16 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update curl
+            pip install awscli
       - attach_workspace:
           at: ~/
       - run:
           name: Get backend url
           command: |
-            export BACKEND_URL=$(sed -n 2p .circleci/ansible/inventory.txt)
+            export BACKEND_URL=$(aws ec2 describe-instances \
+                  --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                  --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                  --output text)
       - run:
           name: Backend smoke test.
           command: |
@@ -417,7 +421,7 @@ jobs:
             # promote 
             aws cloudformation update-stack \
               --use-previous-template \
-              --stack-name cloudfront-kk1j287dhjppmz437 \
+              --stack-name cloudfront-${OldWorkflowID} \
               --parameters ParameterKey=WorkflowID,ParameterValue=$CIRCLE_WORKFLOW_ID,UsePreviousValue=false 
       # Here's where you will add some code to rollback on failure
       - destroy-environment:

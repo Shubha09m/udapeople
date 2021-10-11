@@ -172,9 +172,9 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags project="${CIRCLE_WORKFLOW_ID:0:7}"    
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}" \
+              --tags project="${CIRCLE_WORKFLOW_ID}"    
       - run:
           name: Add Backend EC2 Instance IP to inventory and save to memstash
           command: |
@@ -231,15 +231,20 @@ jobs:
           command: |
             cd backend
             npm i
-            npm audit fix --audit-level=critical --force
+            npm run build
             echo 'DUMP MIGRATIONS'
-            echo 'hello world!!' > migrations_dump.txt
+            echo 'hello world!!' > migrations.txt
             echo "generated file!"
             npm run migrations >> migrations.txt            
-            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}"  --request PUT \
-              --data $( grep -c "No migrations are pending" migrations.txt ) \
-              https://api.memstash.io/values/migration_completion
-            cat migrations.txt
+            status_code="${PIPESTATUS[0]}"
+            if [[ ! "${status_code}" == 0 ]]; then
+              return 1
+            fi
+            if cat migration.txt | grep "has been executed successfully"; then
+              curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" \
+                --request PUT --data "1" \
+                https://api.memstash.io/values/migration-"${CIRCLE_WORKFLOW_ID}"
+            fi
       
 
   deploy-frontend:
@@ -275,7 +280,7 @@ jobs:
       - run: 
           name: Copy built frontend files to the S3 bucket
           command: |
-            aws s3 cp ./frontend/dist s3://udapeople-frontend-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive  
+            aws s3 cp ./frontend/dist s3://udapeople-frontend-"${CIRCLE_WORKFLOW_ID}" --recursive  
       - revert-migration
       - auto-destruct-env
       

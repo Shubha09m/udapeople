@@ -232,7 +232,6 @@ jobs:
             cd backend
             npm i
             npm audit fix --audit-level=critical --force
-            npm run build
             echo 'DUMP MIGRATIONS'
             echo 'hello world!!' > migrations_dump.txt
             echo "generated file!"

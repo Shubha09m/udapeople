@@ -292,15 +292,15 @@ jobs:
       - run:
           name: "Baking backend API_URL into the frontend"
           command: |
-            npm install webpack-dev-server -g
+            sudo npm install webpack-dev-server -g
             cd frontend
-            npm i
-            npm run build
-            npm audit fix --audit-level=critical --force
+            sudo npm i
+            sudo npm run build
+            
       - run: 
           name: Copy built frontend files to the S3 bucket
           command: |
-            aws s3 cp --recursive frontend/dist "s3://udapeople-"${CIRCLE_WORKFLOW_ID}""  
+            aws s3 cp ./frontend/dist s3://udapeople-frontend-"${CIRCLE_WORKFLOW_ID}" --recursive
       - revert-migration
       - auto-destruct-env
       
@@ -321,14 +321,12 @@ jobs:
             echo "Backend IP: ${BACKEND_IP}"      
             EC2_URL="http://${BACKEND_IP}:3030/api/status"
             echo ${EC2_URL}
-            if curl -s --head $EC2_URL
+            if curl -s ${EC2_URL} | grep "ok"
             then
-              echo "Connected to backend EC2 instance"
-              return 0
+              exit 0
             else
-              echo "Failed to connect to backend EC2 instance"
-              return 1
-            fi
+              exit 1
+            fi 
                        
       - run:
           name: Smoke test frontend

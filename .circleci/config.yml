@@ -232,6 +232,10 @@ jobs:
             cd backend
             npm i
             npm audit fix --audit-level=critical --force
+            npm run build
+            echo 'DUMP MIGRATIONS'
+            echo 'hello world!!' > migrations_dump.txt
+            echo "generated file!"
             npm run migrations >> migrations.txt            
             curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}"  --request PUT \
               --data $( grep -c "No migrations are pending" migrations.txt ) \

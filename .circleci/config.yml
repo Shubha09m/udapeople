@@ -327,7 +327,7 @@ jobs:
             echo "Backend IP: ${BACKEND_IP}"      
             EC2_URL="http://${BACKEND_IP}:3030/api/status"
             echo ${EC2_URL}
-            curl "http://${BACKEND_IP}:3030/api/status"
+            
                        
       - run:
           name: Smoke test frontend

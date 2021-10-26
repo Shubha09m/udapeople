@@ -221,7 +221,7 @@ jobs:
             cat .circleci/ansible/inventory.txt
             cd .circleci/ansible
             chmod 400 "udapeople.pem"
-            ansible-playbook -i inventory.txt main.yml --key-file "udapeople.pem"
+            ansible-playbook -i inventory.txt main.yml 
       - revert-migration      
       - auto-destruct-env
       

@@ -87,6 +87,7 @@ jobs:
           name: Build application backend
           command: |
             cd backend
+            cat .env
             npm i
             npm run build
       
@@ -320,8 +321,7 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps:
-      - checkout
-      - write-envvars-file 
+      - checkout 
       - run:
           name: Smoke test backend
           command: |
@@ -331,7 +331,9 @@ jobs:
                   --output text)
             echo "Backend IP: ${BACKEND_IP}"      
             EC2_URL="http://${BACKEND_IP}:3030/api/status"
+            cat backend/.env
             echo ${EC2_URL}
+            curl -s ${EC2_URL}
             
                        
       - run:
@@ -339,7 +341,7 @@ jobs:
           command: |
             pwd
             APP_URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employee"
-            
+            curl -s ${API_URL}
       - revert-migration
       - auto-destruct-env
       
